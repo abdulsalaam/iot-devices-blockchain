@@ -18,7 +18,12 @@ class ManageDevices extends Component {
     try {
       let instance = await DeviceManager;
 	  let defaultAccount = await getDefaultAccount();
-      let deviceIds = (await instance.methods.getDevicesByOwner(defaultAccount).call()).map(el => el.toNumber());
+	  console.log('defaultAccount:',defaultAccount)
+      let deviceIds = (await instance.methods.getDevicesByOwner(defaultAccount).call()).map(el => { 
+	  console.log(el)
+	  //el.toNumber()
+	  return el;
+	  });
 
       let devicePromises = [];
       for (let deviceId of deviceIds) {

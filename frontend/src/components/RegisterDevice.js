@@ -388,11 +388,11 @@ class RegisterDevice extends Component {
           <br /><br />
           <Button.Group size="large">
             <Button type="primary" onClick={() => this.generateEthWallet()}>Generate Ethereum wallet</Button>
-				{ /* <Dropdown overlay={ecMenu}>
+				<Dropdown overlay={ecMenu}>
               <Button type="primary">
                 Generate elliptic curve key pair
               </Button>
-				</Dropdown>*/ }
+				</Dropdown>
           </Button.Group>
           {this.state.showIdentifierInfo ?
             <div>

@@ -85,7 +85,8 @@ class ManageDevice extends Component {
             identifier: device[1],
             metadataHash: device[2],
             firmwareHash: device[3],
-            signatureCount: signatureCount.toNumber()
+			signatureCount: signatureCount
+            //signatureCount: signatureCount.toNumber()
           })
 		})
 		
