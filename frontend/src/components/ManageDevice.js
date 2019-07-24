@@ -69,8 +69,32 @@ class ManageDevice extends Component {
     try {
       const { instance, deviceId } = this.state;
       let device = await instance.methods.devices(deviceId).call();
-      let signatureCount = await instance.deviceSignatureCount(deviceId);
-      let allEvents = instance.allEvents({ fromBlock: 0, toBlock: 'latest' });
+      let signatureCount = await instance.methods.deviceSignatureCount(deviceId).call();
+      
+	  let filter = {  'deviceId': deviceId}
+	  instance.getPastEvents('DevicePropertyUpdated', {
+			filter,
+			fromBlock: 0,
+			toBlock: 'latest'
+		}, (error, events) => { 
+		console.log('DevicePropertyUpdated:',events); 
+		this.setState({
+            data: events,
+            loading: false,
+            owner: device[0],
+            identifier: device[1],
+            metadataHash: device[2],
+            firmwareHash: device[3],
+            signatureCount: signatureCount.toNumber()
+          })
+		})
+		
+		.then((events) => {
+			console.log(events) // same results as the optional callback above
+			
+		});
+		
+	  /*let allEvents = instance.allEvents({ fromBlock: 0, toBlock: 'latest' });
       allEvents.get((error, logs) => {
         let filteredData = logs.filter(el => eventsToSave.includes(el.event) && el.args.deviceId.toNumber() === parseInt(deviceId, 10));
         if (!error) {
@@ -92,7 +116,7 @@ class ManageDevice extends Component {
           firmwareHashNew: firmwareHash,
           ownerNew: owner
         })
-      });
+      });*/
     } catch (error) {
       console.log(error);
       //message.error(error.message);
@@ -149,7 +173,7 @@ class ManageDevice extends Component {
 
   async saveData(property) {
     const { instance, deviceId, identifier, identifierNew, metadataHash, metadataHashNew, firmwareHash, firmwareHashNew, owner, ownerNew } = this.state;
-
+    //let instance = await DeviceManager;
     try {
       switch (property) {
         case 'identifier':
@@ -174,17 +198,30 @@ class ManageDevice extends Component {
           break;
         case 'firmware':
           if (firmwareHash !== firmwareHashNew) {
-            await instance.updateFirmwareHash(deviceId, addHexPrefix(firmwareHashNew), { from: this.state.defaultAccount });
+            /*await instance.methods.updateFirmwareHash(deviceId, addHexPrefix(firmwareHashNew)).send({ from: this.state.defaultAccount });
             this.watchForChanges(property + ' hash');
             openNotificationWithIcon('info', 'Transaction sent', 'Once mined, firmware hash for this device will be updated.');
             this.setState({
               loading: true,
-            });
+            });*/
+			
+			let that = this;
+			instance.methods.updateFirmwareHash(deviceId, addHexPrefix(firmwareHashNew)).send({ from: this.state.defaultAccount, gas: "4712388"  })
+		    .on('transactionHash', function(hash){
+			console.log(property + ' hash');
+			that.watchForChanges(property + ' hash');
+			openNotificationWithIcon('info', 'Transaction sent', 'Once mined, your device will be registered.');	   
+			that.setState({ loading: true })
+		})
+			
+			
           }
           break;
         case 'transfer':
           if (owner !== ownerNew) {
-            await instance.transferDevice(deviceId, addHexPrefix(ownerNew), { from: this.state.defaultAccount });
+			  console.log('owner transfer:',deviceId, addHexPrefix(ownerNew))
+			  console.log('from:',this.state.defaultAccount)
+            await instance.methods.transferDevice(deviceId, addHexPrefix(ownerNew)).send({ from: this.state.defaultAccount });
             this.watchForChanges('owner');
             openNotificationWithIcon('info', 'Transaction sent', 'Once mined, owner for this device will be updated.');
             this.setState({
@@ -315,24 +352,24 @@ class ManageDevice extends Component {
                   <div>
                     <p style={{ marginBottom: '20px' }}>Events that are filtered are {eventsToSave.join(', ')} </p>
                     <Timeline style={{ marginTop: '10px' }}>
-                      {this.state.data.map(el => {
+                      {this.state.data.map((el, key) => {
                         if (el.event === 'DeviceCreated')
-                          return <Timeline.Item color='green'>Device created by &nbsp;<Link to={"/lookup-entity/" + el.args.owner}><Tag>{el.args.owner}</Tag></Link>with &nbsp;<Link to={"/manage-device/" + el.args.deviceId.toNumber()}><Tag>ID {el.args.deviceId.toNumber()}</Tag></Link>, identifier <code>{el.args.identifier}</code>, metadata hash <code>{el.args.metadataHash}</code> and firmware hash <code>{el.args.firmwareHash}</code></Timeline.Item>
+                          return <Timeline.Item color='green' key={key}>Device created by &nbsp;<Link to={"/lookup-entity/" + el.returnValues.owner}><Tag>{el.returnValues.owner}</Tag></Link>with &nbsp;<Link to={"/manage-device/" + el.returnValues.deviceId.toNumber()}><Tag>ID {el.returnValues.deviceId.toNumber()}</Tag></Link>, identifier <code>{el.returnValues.identifier}</code>, metadata hash <code>{el.returnValues.metadataHash}</code> and firmware hash <code>{el.returnValues.firmwareHash}</code></Timeline.Item>
                         if (el.event === 'DevicePropertyUpdated')
-                          return <Timeline.Item>Property {web3.toUtf8(el.args.property)} updated to <code>{el.args.newValue}</code></Timeline.Item>
+                          return <Timeline.Item key={key}>Property {web3.utils.toUtf8(el.returnValues.property)} updated to <code>{el.returnValues.newValue}</code></Timeline.Item>
                         if (el.event === 'DeviceTransfered')
-                          return <Timeline.Item color='orange'>Device transfered to &nbsp;<Link to={"/lookup-entity/" + el.args.newOwner}><Tag>{el.args.newOwner}</Tag></Link></Timeline.Item>
+                          return <Timeline.Item color='orange' key={key}>Device transfered to &nbsp;<Link to={"/lookup-entity/" + el.returnValues.newOwner}><Tag>{el.returnValues.newOwner}</Tag></Link></Timeline.Item>
                         if (el.event === 'DeviceSigned')
-                          return <Timeline.Item color='purple'>Signature with  &nbsp;<Link to={"/check-signature/" + el.args.signatureId.toNumber()}><Tag>ID {el.args.signatureId.toNumber()}</Tag></Link>created by {el.args.signer}</Timeline.Item>  
+                          return <Timeline.Item color='purple' key={key}>Signature with  &nbsp;<Link to={"/check-signature/" + el.returnValues.signatureId.toNumber()}><Tag>ID {el.returnValues.signatureId.toNumber()}</Tag></Link>created by {el.returnValues.signer}</Timeline.Item>  
                         if (el.event === 'SignatureRevoked')
-                          return <Timeline.Item color='purple'>Signature with  &nbsp;<Link to={"/check-signature/" + el.args.signatureId.toNumber()}><Tag>ID {el.args.signatureId.toNumber()}</Tag></Link>revoked</Timeline.Item>  
+                          return <Timeline.Item color='purple' key={key}>Signature with  &nbsp;<Link to={"/check-signature/" + el.returnValues.signatureId.toNumber()}><Tag>ID {el.returnValues.signatureId.toNumber()}</Tag></Link>revoked</Timeline.Item>  
                         else
                           return null
                       })}
                     </Timeline>
                   </div>
                   :
-                  <p><em>empty</em></p>
+                  <p><em>empty device</em></p>
                 }
               </Card>
             </div>

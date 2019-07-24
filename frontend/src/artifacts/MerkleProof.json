@@ -1,10 +1,10 @@
 {
   "contractName": "MerkleProof",
   "abi": [],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.8+commit.23d335f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Merkle proof verification based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol Source: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/MerkleProof.sol\",\"methods\":{},\"title\":\"MerkleProof\"},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/D/PROJECTS/blockchain/iot-device-management/contracts/MerkleProof.sol\":\"MerkleProof\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/D/PROJECTS/blockchain/iot-device-management/contracts/MerkleProof.sol\":{\"keccak256\":\"0x4b88759d3c10a2c4902c634257534e7d61957c8e7ef0c10604c2a22f153d5319\",\"urls\":[\"bzzr://02cc60fecd445b0926b268d54484813f1ebc0e370a70e5f9220cef0b4b89f445\"]}},\"version\":1}",
-  "bytecode": "0x604c6023600b82828239805160001a607314601657fe5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a723058209b7751c690e13f6a892b191ca311cf3ef1d685f330c5436cb303b5e86a3931fe0029",
-  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a723058209b7751c690e13f6a892b191ca311cf3ef1d685f330c5436cb303b5e86a3931fe0029",
-  "sourceMap": "282:1249:2:-;;132:2:-1;166:7;155:9;146:7;137:37;255:7;249:14;246:1;241:23;235:4;232:33;222:2;;269:9;222:2;293:9;290:1;283:20;323:4;314:7;306:22;347:7;338;331:24",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.0+commit.1d4f565a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Merkle proof verification based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol Source: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/MerkleProof.sol\",\"methods\":{},\"title\":\"MerkleProof\"},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/D/PROJECTS/blockchain/iot-device-management/contracts/MerkleProof.sol\":\"MerkleProof\"},\"evmVersion\":\"byzantium\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/D/PROJECTS/blockchain/iot-device-management/contracts/MerkleProof.sol\":{\"keccak256\":\"0x4b88759d3c10a2c4902c634257534e7d61957c8e7ef0c10604c2a22f153d5319\",\"urls\":[\"bzzr://02cc60fecd445b0926b268d54484813f1ebc0e370a70e5f9220cef0b4b89f445\"]}},\"version\":1}",
+  "bytecode": "0x604c602c600b82828239805160001a60731460008114601c57601e565bfe5b5030600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a72305820c76486d503c64c59b97d254ebf70a9fb4723796ee80e5bc5d217c8fa2661b12d0029",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea165627a7a72305820c76486d503c64c59b97d254ebf70a9fb4723796ee80e5bc5d217c8fa2661b12d0029",
+  "sourceMap": "282:1249:2:-;;132:2:-1;166:7;155:9;146:7;137:37;252:7;246:14;243:1;238:23;232:4;229:33;270:1;265:20;;;;222:63;;265:20;274:9;222:63;;298:9;295:1;288:20;328:4;319:7;311:22;352:7;343;336:24",
   "deployedSourceMap": "282:1249:2:-;;;;;;;;",
   "source": "pragma solidity ^0.5.0;\n\n/**\n * @title MerkleProof\n * @dev Merkle proof verification based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol\n * Source: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/MerkleProof.sol\n */\nlibrary MerkleProof {\n    /**\n     * @dev Verifies a Merkle proof proving the existence of a leaf in a Merkle tree. Assumes that each pair of leaves\n     * and each pair of pre-images are sorted.\n     * @param _proof Merkle proof containing sibling hashes on the branch from the leaf to the root of the Merkle tree\n     * @param _root Merkle root\n     * @param _leaf Leaf of Merkle tree\n     */\n    function verifyProof(\n        bytes32[] memory _proof,\n        bytes32 _root,\n        bytes32 _leaf\n    )\n        internal\n        pure\n        returns (bool)\n    {\n        bytes32 computedHash = _leaf;\n\n        for (uint256 i = 0; i < _proof.length; i++) {\n            bytes32 proofElement = _proof[i];\n\n            if (computedHash < proofElement) {\n                // Hash(current computed hash + current element of the proof)\n                computedHash = keccak256(abi.encodePacked(computedHash, proofElement));\n            } else {\n                // Hash(current element of the proof + current computed hash)\n                computedHash = keccak256(abi.encodePacked(proofElement, computedHash));\n            }\n        }\n\n        // Check if the computed hash (root) is equal to the provided root\n        return computedHash == _root;\n    }\n}",
   "sourcePath": "D:\\PROJECTS\\blockchain\\iot-device-management\\contracts\\MerkleProof.sol",
@@ -1796,11 +1796,11 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.8+commit.23d335f2.Emscripten.clang"
+    "version": "0.5.0+commit.1d4f565a.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "3.0.11",
-  "updatedAt": "2019-06-21T06:56:48.913Z",
+  "updatedAt": "2019-07-15T06:42:22.974Z",
   "devdoc": {
     "details": "Merkle proof verification based on https://github.com/ameensol/merkle-tree-solidity/blob/master/src/MerkleProof.sol Source: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/MerkleProof.sol",
     "methods": {},

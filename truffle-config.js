@@ -1,15 +1,20 @@
 module.exports = {
+
+ // Configure your networks
   networks: {
+
+   // development network is default for truffle
     development: {
-      host: "127.0.0.1",
-      port: 8545,
-      network_id: "*"
+     host: "172.16.1.38",     // Localhost (default: none)
+     port: 8545,            // Standard Ethereum port (default: none)
+     network_id: "*",       // Any network (default: none)
     }
   },
-  solc: {
-    optimizer: {
-      enabled: true,
-      runs: 200
+
+  // Configure your compilers
+  compilers: {
+    solc: {
+      version: "0.5.0",    // Fetch exact version from solc-bin (default: truffle's version)
     }
   }
-};
+}

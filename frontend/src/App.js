@@ -184,7 +184,7 @@ class App extends Component {
             </Layout>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
-            IoT Device Management &copy; 2018 Created by Silvio Simunic
+            IoT Device Management &copy; 2019 Created by Altiux Innovations Pvt Ltd.
         </Footer>
         </Layout>
       </Router>

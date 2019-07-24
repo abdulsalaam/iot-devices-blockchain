@@ -56,8 +56,8 @@ class LookupEntity extends Component {
     try {
       let instance = await DeviceManager;
 
-    let filter = {  'address': address}
-	instance.events.allEvents({
+    let filter = {  'owner': address}
+	/*instance.events.allEvents({
 		  fromBlock: 0
 		}, function (error, event) {
 		  if (error) console.log('eeeeeeeeeeeeeeeeeee:',error)
@@ -67,18 +67,38 @@ class LookupEntity extends Component {
 		 let filteredData = event;
 		 console.log('filteredData1:',filteredData)
 	
-			this.setState({
+			/*this.setState({
 				address: address,
 				loading: false,
 				searched: true
-			  })
+			  })*/
 		 
+		/*})*/
+		
+		//var pastTransferEvents = instance.getPastEvents('EntityDataUpdated', { filter, fromBlock: 0, toBlock: 'latest'})
+		instance.getPastEvents('EntityDataUpdated', {
+			filter,
+			fromBlock: 0,
+			toBlock: 'latest'
+		}, (error, events) => { 
+		console.log('pastTransferEvents:',events); 
+		this.setState({
+				address: address,
+				loading: false,
+				 data: events,
+				searched: true
+			  })
 		})
 		
+		.then((events) => {
+			console.log(events) // same results as the optional callback above
+			
+		});
+		//console.log('pastTransferEvents',pastTransferEvents)
 		console.log('aaaaaaaaaaaaaaa',this.state.data)
       /*let allEvents = instance.allEvents({ fromBlock: 0, toBlock: 'latest' });
       allEvents.get((error, logs) => {
-        let filteredData = logs.filter(el => eventsToSave.includes(el.event) && (el.args.owner === address || el.args.oldOwner === address || el.args.newOwner === address || el.args.signer === address));
+        let filteredData = logs.filter(el => eventsToSave.includes(el.event) && (el.returnValues.owner === address || el.returnValues.oldOwner === address || el.returnValues.newOwner === address || el.returnValues.signer === address));
         if (!error) {
           this.setState({
             address: address,
@@ -95,7 +115,6 @@ class LookupEntity extends Component {
   }
 
   render() {
-	  console.log('daslhdkajhdhahgkdjhadhkashdkhaskdhakshdksahdkj',this.state.data)
     return (
       <div>
         <p>
@@ -112,25 +131,27 @@ class LookupEntity extends Component {
         <br /><br />
         <Button size="small" onClick={() => this.setState({ searchValue: this.state.defaultAccount })}>Set to my address</Button>
         {this.state.searched &&
-          <div>sadasdasdad
+          <div>
             <Divider />
             <Card loading={this.state.loading} title={'Historical events for entity (oldest to newest)'}>
               {this.state.data.length !== 0 ?
                 <div>
-                  <p style={{ marginBottom: '20px' }}>Events that are filtered are {eventsToSave.join(', ')} </p>
+                  <p style={{ marginBottom: '20px' }}>Events that are filtered are {eventsToSave.join(', ')}</p>
                   <Timeline style={{ marginTop: '10px' }}>
-                    {this.state.data.map(el => {
+                    {
+				    this.state.data.map((el, key) => {
                       if (el.event === 'EntityDataUpdated')
-                        return <Timeline.Item>Entity data updated to <code>{el.args.newData}</code></Timeline.Item>
+						return <Timeline.Item key={key}>Entity data updated to <code>{el.returnValues.newData}</code></Timeline.Item>
                       if (el.event === 'DeviceCreated')
-                        return <Timeline.Item color='green'>Created device with &nbsp;<Link to={"/manage-device/" + el.args.deviceId.toNumber()}><Tag>ID {el.args.deviceId.toNumber()}</Tag></Link>, identifier <code>{el.args.identifier}</code>, metadata hash <code>{el.args.metadataHash}</code> and firmware hash <code>{el.args.firmwareHash}</code></Timeline.Item>
+                        return <Timeline.Item color='green' key={key}>Created device with &nbsp;<Link to={"/manage-device/" + el.returnValues.deviceId.toNumber()}><Tag>ID {el.returnValues.deviceId.toNumber()}</Tag></Link>, identifier <code>{el.returnValues.identifier}</code>, metadata hash <code>{el.returnValues.metadataHash}</code> and firmware hash <code>{el.returnValues.firmwareHash}</code></Timeline.Item>
                       if (el.event === 'DeviceTransfered')
-                        return <Timeline.Item color='orange'>Device with &nbsp;<Link to={"/manage-device/" + el.args.deviceId.toNumber()}><Tag>ID {el.args.deviceId.toNumber()}</Tag></Link>transfered {el.args.newOwner === this.state.address && <span>from &nbsp;<Tag onClick={() => this.reloadWithAddress(el.args.oldOwner)}>{el.args.oldOwner}</Tag></span>}{el.args.oldOwner === this.state.address && <span>to &nbsp;<Tag onClick={() => this.reloadWithAddress(el.args.newOwner)}>{el.args.newOwner}</Tag></span>}</Timeline.Item>
+                        return <Timeline.Item color='orange' key={key}>Device with &nbsp;<Link to={"/manage-device/" + el.returnValues.deviceId.toNumber()}><Tag>ID {el.returnValues.deviceId.toNumber()}</Tag></Link>transfered {el.returnValues.newOwner === this.state.address && <span>from &nbsp;<Tag onClick={() => this.reloadWithAddress(el.returnValues.oldOwner)}>{el.returnValues.oldOwner}</Tag></span>}{el.returnValues.oldOwner === this.state.address && <span>to &nbsp;<Tag onClick={() => this.reloadWithAddress(el.returnValues.newOwner)}>{el.returnValues.newOwner}</Tag></span>}</Timeline.Item>
                       if (el.event === 'DeviceSigned')
-                        return <Timeline.Item color='purple'>Signed device with &nbsp;<Link to={"/manage-device/" + el.args.deviceId.toNumber()}><Tag>ID {el.args.deviceId.toNumber()}</Tag></Link></Timeline.Item>
+                        return <Timeline.Item color='purple' key={key}>Signed device with &nbsp;<Link to={"/manage-device/" + el.returnValues.deviceId.toNumber()}><Tag>ID {el.returnValues.deviceId.toNumber()}</Tag></Link></Timeline.Item>
                       else
                         return null
-                    })}
+                    })
+					}
                   </Timeline>
                 </div>
                 :

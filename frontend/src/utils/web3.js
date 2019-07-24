@@ -20,7 +20,7 @@ let getWeb3 = new Promise(function (resolve, reject) {
     } else {
       //let provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
 	  //let provider = new Web3.providers.HttpProvider('ws://127.0.0.1:8545');
-	  let provider = new Web3.providers.WebsocketProvider('ws://localhost:8545')
+	  let provider = new Web3.providers.WebsocketProvider('ws://172.16.1.38:8546')
 	   console.log('bbbbb',provider);
       web3 = new Web3(provider);
       results = {

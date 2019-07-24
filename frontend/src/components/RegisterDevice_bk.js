@@ -88,48 +88,18 @@ class RegisterDevice extends Component {
   
   async watchForChanges(txHash) {
     let instance = await DeviceManager;
-	//let contractAddress = instance.options.address;
-	console.log('device instance:',instance)
 	console.log('txHash:',txHash)
 	console.log('loading1:',this.state.loading);
 	//let that2 = this
 	let deviceIdTemp;
-	
-		instance.events.DeviceCreated({
-			//filter: {myIndexedParam: [20,23], myOtherIndexedParam: '0x123456789...'}, // Using an array means OR: e.g. 20 or 23
-			fromBlock: 0
-		}, (error, eventData) => { 
-		console.log('aaaaaa:',eventData);
-		if (eventData.transactionHash === txHash) {
-			  openNotificationWithIcon('success', 'Transaction mined', 'Your device has been registered.');
-			  console.log('deviceIdTemp:',eventData.returnValues);
-			  //deviceIdTemp = eventData.returnValues.deviceId.toNumber()
-			  deviceIdTemp = eventData.returnValues.deviceId;
-			 //this.state.deviceCreatedEvent.stopWatching();
-			 this.setState({ loading: false })
-			 this.divCountHandler(deviceIdTemp)
-			 this.next();
-			}		
-		})
-		.on('data', (eventData) => {
-			console.log('evvvvv:',eventData); // same results as the optional callback above
-		})
-		.on('changed', (eventData) => {
-			// remove event from local database
-		})
-		.on('error', console.error);
-	
-	
-	/*instance.events.allEvents({
+	instance.getPastEvents('DeviceCreated', {
 			fromBlock: 0,
 			toBlock: 'latest'
 		}, (error, events) => { 
 		if(!error) {
 		console.log('pastTransferEvents:',events);
         let latestEvent = events.pop();	
-		//let deviceCreatedEvent = latestEvent;
-		console.log('returnValues11:',latestEvent.returnValues)
-	  console.log('TX:',txHash,latestEvent.transactionHash )	
+		//let deviceCreatedEvent = latestEvent;		
 		 if (latestEvent.transactionHash === txHash) {
 			  openNotificationWithIcon('success', 'Transaction mined', 'Your device has been registered.');
 			  deviceIdTemp = latestEvent.returnValues.deviceId.toNumber()
@@ -138,33 +108,10 @@ class RegisterDevice extends Component {
 			 this.next();
 			}
 		 }	
-		})*/
+		})
 	  }
 
-     async watchForChanges2() {
-	 let instance = await DeviceManager;
-	  	instance.getPastEvents('DeviceCreated', {
-			fromBlock: 0,
-			toBlock: 'latest'
-		}, (error, events) => { 
-		if(!error) {
-		console.log('pastTransferEvents:',events);
-        let latestEvent = events.pop();	
-		//let deviceCreatedEvent = latestEvent;		
-		
-			  openNotificationWithIcon('success', 'Transaction mined', 'Your device has been registered.');
-			  //deviceIdTemp = latestEvent.returnValues.deviceId.toNumber()
-			  console.log('returnValues2:',latestEvent.returnValues)
-			 // this.state.deviceCreatedEvent.stopWatching();
-			 //this.divCountHandler(deviceIdTemp)
-			 //this.next();
-			
-		 }	
-		})
-	 }
-  
   next() {
-	//this.watchForChanges2();	
     const { current, identifier/*, metadataHash, firmwareHash*/ } = this.state;
 
     if ((current === 0) && (identifier === null || identifier === '')) {
@@ -388,11 +335,11 @@ class RegisterDevice extends Component {
           <br /><br />
           <Button.Group size="large">
             <Button type="primary" onClick={() => this.generateEthWallet()}>Generate Ethereum wallet</Button>
-				{ /* <Dropdown overlay={ecMenu}>
+            <Dropdown overlay={ecMenu}>
               <Button type="primary">
                 Generate elliptic curve key pair
               </Button>
-				</Dropdown>*/ }
+            </Dropdown>
           </Button.Group>
           {this.state.showIdentifierInfo ?
             <div>
@@ -532,7 +479,7 @@ class RegisterDevice extends Component {
     try {
       let instance = await DeviceManager;
 	  //instance.options.address = "0x4cdB6ac6c502d9dCA1A0b70fdc1cd7e64F89e1BF"
-	  console.log('instance address:',instance.options.address);
+	  console.log('instance:',instance);
 
       let identifierToSave = identifier;
       if (address !== '') {
